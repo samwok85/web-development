@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Photo Gallery Specific Styles */
+        .gallery {
+            padding: 100px 0 50px;
+            background-color: #f8f9fa;
+        }
+        
+        .gallery-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .gallery-header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .gallery-header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .gallery-nav {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .gallery-nav .btn {
+            margin: 0 10px;
+            min-width: 150px;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-header h2:after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: #4a89dc;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-description {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin: 30px auto 40px;
+            max-width: 600px;
+            padding: 0 20px;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            justify-content: center;
+        }
+        
+        .photo-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-card:hover .photo-img {
+            transform: scale(1.05);
+        }
+        
+        .photo-info {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .photo-info h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .photo-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            display: block;
+            margin: 50px auto;
+            max-width: 90%;
+            max-height: 80%;
+            cursor: pointer;
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #bbb;
+        }
+        
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            padding: 0 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.3s;
+        }
+        
+        .prev:hover, .next:hover {
+            color: #3498db;
+        }
+        
+        .prev {
+            left: 10px;
+        }
+        
+        .next {
+            right: 10px;
+        }
+        
+        .caption {
+            text-align: center;
+            color: white;
+            font-size: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 700px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+                padding: 12px;
+            }
+            
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="nav-logo">
+                    <h2>Photo Viewer</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="random-foto.html">My RANDOM</a></li>
+                    <li><a href="my-photos.html">My SSA</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <div class="gallery-header">
+                <h1>My Photo </h1>
+                <p>Browse through my collection of photos</p>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="gallery-nav">
+                <button class="btn primary-btn" onclick="showSection('random-foto')">My RANDOM</button>
+                <button class="btn primary-btn" onclick="showSection('my-photos')">My SSA</button>
+            </div>
+            
+            <!-- Random Foto Section -->
+            <div id="random-foto" class="photo-section">
+                <div class="section-header">
+                    <h2>Random Foto</h2>
+                </div>
+                <div class="photo-grid">
+                    <div class="photo-card">
+                        <img src="foto/rinjani 1.jpg" alt="Random Foto 1" class="photo-img" onclick="openModal();currentSlide(1)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/r2.jpg" alt="Random Foto 2" class="photo-img" onclick="openModal();currentSlide(2)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/rinjani.jpg" alt="Random Foto 3" class="photo-img" onclick="openModal();currentSlide(3)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/r3.jpg" alt="Random Foto 4" class="photo-img" onclick="openModal();currentSlide(4)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/p4.jpg" alt="Random Foto 5" class="photo-img" onclick="openModal();currentSlide(5)">
+                        <div class="photo-info"></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- My Photos Section -->
+            <div id="my-photos" class="photo-section" style="display: none;">
+                <div class="section-header">
+                    <h2>My Personal</h2>
+                </div>
+                <div class="photo-grid">
+                    <div class="photo-card">
+                        <img src="foto/ssa.jpg" alt="My Photo 1" class="photo-img" onclick="openModal();currentSlide(1)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/ssa1.jpg" alt="My Photo 2" class="photo-img" onclick="openModal();currentSlide(2)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/ssa2.jpg" alt="My Photo 3" class="photo-img" onclick="openModal();currentSlide(3)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/ssa3.jpg" alt="My Photo 4" class="photo-img" onclick="openModal();currentSlide(4)">
+                        <div class="photo-info"></div>
+                    </div>
+                    <div class="photo-card">
+                        <img src="foto/ssa5.jpg" alt="My Photo 5" class="photo-img" onclick="openModal();currentSlide(5)">
+                        <div class="photo-info"></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for enlarged photos -->
+    <div id="photoModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+        <img class="modal-content" id="modalPhoto">
+        <div class="caption" id="caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Photo section navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.photo-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show the selected section
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // Photo modal functionality
+        function openModal() {
+            document.getElementById("photoModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("photoModal").style.display = "none";
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function showSlides(n) {
+            const slides = document.getElementsByClassName("photo-img");
+            const modalPhoto = document.getElementById("modalPhoto");
+            const captionText = document.getElementById("caption");
+            
+            if (n > slides.length) {slideIndex = 1}
+            if (n < 1) {slideIndex = slides.length}
+            
+            modalPhoto.src = slides[slideIndex-1].src;
+            captionText.innerHTML = slides[slideIndex-1].alt;
+        }
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById("photoModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
